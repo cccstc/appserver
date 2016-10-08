@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+
+require("babel-register");
+
+var MYSQL_HOST = process.env.MYSQL_HOST || "localhost";
+var MYSQL_PORT = process.env.MYSQL_PORT || "3306";
+var MYSQL_DATABASE = process.env.MYSQL_DATABASE || "wordpress";
+var MYSQL_USERNAME = process.env.MYSQL_USERNAME || "root";
+var MYSQL_PASSWORD = process.env.MYSQL_PASSWORD;
+
+var PORT = process.env.PORT || "3000";
+
+var app = require("../")(MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USERNAME, MYSQL_PASSWORD);
+
+app.set('port', +PORT);
+
+var server = app.listen(app.get('port'), function() {
+  console.log('listening on port ' + server.address().port);
+});
