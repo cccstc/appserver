@@ -1,7 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import mysql from "mysql";
-import {ListBooklet} from "./lib/wordpress-data";
+import {ListBooklet, ListAudio} from "./lib/wordpress-data";
 
 module.exports = (MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USERNAME, MYSQL_PASSWORD) => {
   const app = express();
@@ -24,6 +24,18 @@ module.exports = (MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USERNAME, MYSQL_
         .toArray()
         .subscribe(
           (booklets) => res.json({booklets}),
+          (err) => res.status(500).json({ error: err }),
+          () => {}
+        )
+  );
+
+  app.get(
+    "/record/list",
+    (req, res) =>
+      ListAudio(mysqlConn)()
+        .toArray()
+        .subscribe(
+          (records) => res.json({records}),
           (err) => res.status(500).json({ error: err }),
           () => {}
         )

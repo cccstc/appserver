@@ -4,6 +4,7 @@
   "description": "API server for serving wordpress data to APP",
   "main": "index.js",
   "scripts": {
+    "start": "bin/server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
