@@ -1,45 +1,46 @@
-import express from "express";
-import morgan from "morgan";
-import mysql from "mysql";
-import {ListBooklet, ListAudio} from "./lib/wordpress-data";
+const express = require("express");
+const morgan = require("morgan");
+const axios = require("axios");
 
-module.exports = (MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USERNAME, MYSQL_PASSWORD) => {
-  const app = express();
+const app = express();
 
-  const mysqlConn = mysql.createPool({
-    connectionLimit : 10,
-    host: MYSQL_HOST,
-    port: MYSQL_PORT,
-    user: MYSQL_USERNAME,
-    password: MYSQL_PASSWORD,
-    database: MYSQL_DATABASE,
-  });
+app.use(morgan("tiny"));
 
-  app.use(morgan("tiny"));
+app.get("/booklet/list", (req, res) =>
+  axios
+    .get("https://www.cccstc.org/_functions/services?limit=52")
+    .then(r => r.data)
+    .then(d => d.services)
+    .then(services =>
+      services.map(d =>
+        Object.assign({}, { date: d.displayDate, week: d.week, booklet: d.pdf })
+      )
+    )
+    .then(booklets => res.json({ booklets }))
+    .catch(err => res.status(500).json({ error: err }))
+);
 
-  app.get(
-    "/booklet/list",
-    (req, res) =>
-      ListBooklet(mysqlConn)()
-        .toArray()
-        .subscribe(
-          (booklets) => res.json({booklets}),
-          (err) => res.status(500).json({ error: err }),
-          () => {}
+app.get("/record/list", (req, res) =>
+  axios
+    .get("https://www.cccstc.org/_functions/records?limit=50")
+    .then(r => r.data)
+    .then(d => d.records)
+    .then(records =>
+      records.map(d =>
+        Object.assign(
+          {},
+          {
+            date: d.displayDate,
+            session: d.speaker,
+            content: d.description,
+            week: d.week,
+            audio: d.mp3
+          }
         )
-  );
+      )
+    )
+    .then(records => res.json({ records }))
+    .catch(err => res.status(500).json({ error: err }))
+);
 
-  app.get(
-    "/record/list",
-    (req, res) =>
-      ListAudio(mysqlConn)()
-        .toArray()
-        .subscribe(
-          (records) => res.json({records}),
-          (err) => res.status(500).json({ error: err }),
-          () => {}
-        )
-  );
-
-  return app;
-};
+module.exports = app;
