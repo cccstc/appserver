@@ -12,9 +12,17 @@ app.get("/booklet/list", (req, res) =>
     .then(r => r.data)
     .then(d => d.services)
     .then(services =>
-      services.map(d =>
-        Object.assign({}, { date: d.displayDate, week: d.week, booklet: d.pdf })
-      )
+      services.map(d => {
+        let weekStrArr = (d.week || "").split("-");
+        let week = 0;
+        if (weekStrArr.length === 2) {
+          week = weekStrArr[1].trim();
+        }
+        return Object.assign(
+          {},
+          { date: d.displayDate, week: +week, booklet: d.pdf }
+        );
+      })
     )
     .then(booklets => res.json({ booklets }))
     .catch(err => res.status(500).json({ error: err }))
