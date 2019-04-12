@@ -39,7 +39,7 @@ app.get("/record/list", (req, res) =>
           {},
           {
             date: d.displayDate,
-            session: d.speaker,
+            session: d.title,
             content: d.description,
             week: d.week,
             audio: d.mp3
